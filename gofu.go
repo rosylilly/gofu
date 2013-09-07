@@ -8,12 +8,18 @@ import (
   "net/http"
   "net/http/fcgi"
   "strconv"
+  "time"
   "fmt"
 )
 
 var bucket *s3.Bucket
 
+func sec() int64 {
+  return time.Now().UnixNano()
+}
+
 func gofuHandler(writer http.ResponseWriter, req *http.Request) {
+  t := sec()
   imageBlob, err := bucket.Get(req.URL.Path[1:])
 
   if(err != nil) {
@@ -21,13 +27,17 @@ func gofuHandler(writer http.ResponseWriter, req *http.Request) {
     http.NotFound(writer, req)
     return
   }
+  fmt.Printf("Get by S3:        %d\n", sec() - t)
 
+  t = sec()
   magick_wand := imagick.NewMagickWand()
   defer func(){
     magick_wand.Destroy()
   }()
   magick_wand.ReadImageBlob(imageBlob)
+  fmt.Printf("MagickWand:       %d\n", sec() - t)
 
+  t = sec()
   query := req.URL.Query()
 
   width := magick_wand.GetImageWidth()
@@ -42,13 +52,15 @@ func gofuHandler(writer http.ResponseWriter, req *http.Request) {
     height = uint(h)
   }
   magick_wand.ResizeImage(width, height, imagick.FILTER_CUBIC, 1)
+  fmt.Printf("Parse and Resize: %d\n", sec() - t)
 
-
+  t = sec()
   responseBlob := magick_wand.GetImageBlob()
 
   writer.Header().Add("Content-Type", http.DetectContentType(responseBlob))
   writer.Header().Add("Content-Length", strconv.Itoa(len(responseBlob)))
   writer.Write(responseBlob)
+  fmt.Printf("Send Response:    %d\n", sec() - t)
 }
 
 func startWithHttp() {
