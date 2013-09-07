@@ -18,6 +18,7 @@ type Config struct {
   Port uint
   Bucket string
   Fcgi bool
+  MaxCache int
   S3 aws.Auth
 }
 
@@ -26,6 +27,7 @@ var gofu_config Config
 func init() {
   gofu_config.Bind = ""
   gofu_config.Port = 8808
+  gofu_config.MaxCache = 100
   gofu_config.Fcgi = false
 
   flag.StringVar(&gofu_config.Path, "c", "./config.json", "config file path")

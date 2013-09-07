@@ -8,8 +8,10 @@ No more 仏滅
 
 ```
 $ brew install go imagemagick
-$ go get launchpad.net/goamz/s3
 $ go get github.com/gographics/imagick/imagick
+$ go get launchpad.net/goamz/aws
+$ go get launchpad.net/goamz/s3
+$ go get github.com/golang/groupcache/lru
 $ make
 ```
 

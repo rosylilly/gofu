@@ -4,6 +4,7 @@ import (
   "github.com/gographics/imagick/imagick"
   "launchpad.net/goamz/aws"
   "launchpad.net/goamz/s3"
+  "github.com/golang/groupcache/lru"
   "net"
   "net/http"
   "net/http/fcgi"
@@ -12,15 +13,30 @@ import (
   "fmt"
 )
 
+var cache *lru.Cache
 var bucket *s3.Bucket
 
 func sec() int64 {
   return time.Now().UnixNano()
 }
 
+func GetImage(path string) (bytes []byte, err error) {
+  blob, res := cache.Get(path)
+  if(!res) {
+    s3blob, err := bucket.Get(path)
+    if(err != nil) {
+      return nil, err
+    }
+    cache.Add(path, s3blob)
+
+    return s3blob, nil
+  }
+  return blob.([]byte), nil
+}
+
 func gofuHandler(writer http.ResponseWriter, req *http.Request) {
   t := sec()
-  imageBlob, err := bucket.Get(req.URL.Path[1:])
+  imageBlob, err := GetImage(req.URL.Path[1:])
 
   if(err != nil) {
     fmt.Println(err)
@@ -80,6 +96,7 @@ func startWithFcgi() {
 }
 
 func start() {
+  cache = lru.New(gofu_config.MaxCache)
   s3client := s3.New(gofu_config.S3, aws.APNortheast)
   bucket = s3client.Bucket(gofu_config.Bucket)
 
