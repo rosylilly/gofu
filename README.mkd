@@ -1,0 +1,20 @@
+# gofu
+
+護符
+
+No more 仏滅
+
+## How to build
+
+```
+$ brew install go imagemagick
+$ go get launchpad.net/goamz/s3
+$ go get github.com/gographics/imagick/imagick
+$ make
+```
+
+## How to run
+
+1. Write configs
+2. Launch gofu server: `bin/gofu -c config.json`
+3. Access image path and set query `w` and `h`(ex: http://localhost:8888/test.jpg?w=100&h=100)
