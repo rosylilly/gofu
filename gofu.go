@@ -4,14 +4,16 @@ import (
   "github.com/gographics/imagick/imagick"
   "launchpad.net/goamz/aws"
   "launchpad.net/goamz/s3"
+  "net"
   "net/http"
+  "net/http/fcgi"
   "strconv"
   "fmt"
 )
 
 var bucket *s3.Bucket
 
-func httpHandler(writer http.ResponseWriter, req *http.Request) {
+func gofuHandler(writer http.ResponseWriter, req *http.Request) {
   imageBlob, err := bucket.Get(req.URL.Path[1:])
 
   if(err != nil) {
@@ -49,12 +51,29 @@ func httpHandler(writer http.ResponseWriter, req *http.Request) {
   writer.Write(responseBlob)
 }
 
+func startWithHttp() {
+  address := fmt.Sprintf("%s:%d", gofu_config.Bind, gofu_config.Port)
+
+  http.HandleFunc("/", gofuHandler)
+  http.ListenAndServe(address, nil)
+}
+
+func startWithFcgi() {
+  address := fmt.Sprintf("%s:%d", gofu_config.Bind, gofu_config.Port)
+
+  mux := http.NewServeMux()
+  mux.HandleFunc("/", gofuHandler)
+  listen, _ := net.Listen("tcp", address)
+  fcgi.Serve(listen, mux)
+}
+
 func start() {
   s3client := s3.New(gofu_config.S3, aws.APNortheast)
   bucket = s3client.Bucket(gofu_config.Bucket)
 
-  http.HandleFunc("/", httpHandler)
-
-  address := fmt.Sprintf("%s:%d", gofu_config.Bind, gofu_config.Port)
-  http.ListenAndServe(address, nil)
+  if(gofu_config.Fcgi) {
+    startWithFcgi()
+  } else {
+    startWithHttp()
+  }
 }

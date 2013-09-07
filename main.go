@@ -16,6 +16,7 @@ type Config struct {
   Bind string
   Port uint
   Bucket string
+  Fcgi bool
   S3 aws.Auth
 }
 
@@ -24,6 +25,7 @@ var gofu_config Config
 func init() {
   gofu_config.Bind = ""
   gofu_config.Port = 8808
+  gofu_config.Fcgi = false
 
   flag.StringVar(&gofu_config.Path, "c", "./config.json", "config file path")
   flag.BoolVar(&gofu_config.Help, "h", false, "show help")
