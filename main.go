@@ -8,6 +8,7 @@ import (
   "flag"
   "fmt"
   "os"
+  "runtime"
 )
 
 type Config struct {
@@ -37,6 +38,8 @@ func init() {
 }
 
 func main() {
+  runtime.GOMAXPROCS(runtime.NumCPU())
+
   flag.Parse()
 
   if(gofu_config.Help) {
