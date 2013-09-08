@@ -3,7 +3,6 @@ package main
 import (
   "fmt"
   "github.com/gographics/imagick/imagick"
-  "github.com/golang/groupcache/lru"
   "launchpad.net/goamz/aws"
   "launchpad.net/goamz/s3"
   "net"
@@ -17,7 +16,6 @@ type MagickWandChan chan *imagick.MagickWand
 type GofuServer struct {
   bind   string
   bucket *s3.Bucket
-  lru    *lru.Cache
   logger *GofuLogger
   wands  MagickWandChan
 }
@@ -27,7 +25,6 @@ func NewGofuServer() *GofuServer {
 
   server.bind = fmt.Sprintf("%s:%d", gofuConfig.Bind, gofuConfig.Port)
   server.bucket = s3.New(gofuConfig.S3Config, aws.APNortheast).Bucket(gofuConfig.Bucket)
-  server.lru = lru.New(gofuConfig.MaxCache)
   server.logger = NewGofuLogger()
   server.wands = make(MagickWandChan, gofuConfig.MaxProc)
 

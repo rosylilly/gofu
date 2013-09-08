@@ -1,2 +1,3 @@
 bin/gofu
 config.json
+tmp/cache

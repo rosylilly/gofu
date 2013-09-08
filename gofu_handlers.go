@@ -7,7 +7,9 @@ import (
   "net/url"
   "strconv"
   "strings"
+  "path"
   "time"
+  "os"
 )
 
 func bench(label string, f func()) {
@@ -45,23 +47,30 @@ func atof(query string, source float64) float64 {
   return source
 }
 
-func (server *GofuServer) getImage(path string) (b []byte, e error) {
-  byCache, r := server.lru.Get(path)
+func (server *GofuServer) getImage(reqPath string) (p string, e error) {
+  cachePath := path.Join(gofuConfig.Dir.Cache, reqPath)
 
-  if !r {
-    blob, err := server.bucket.Get(path)
+  fileInfo, err := os.Stat(cachePath)
+  if err != nil {
+    blob, err := server.bucket.Get(reqPath)
 
-    if err == nil {
-      server.lru.Add(path, blob)
+    if err != nil {
+      return "", err
     }
 
-    return blob, err
+    os.MkdirAll(path.Dir(cachePath), 0700)
+
+    io, _ := os.Create(cachePath)
+    defer io.Close()
+    io.Write(blob)
+  } else {
+    fmt.Println(fileInfo.ModTime().Unix())
   }
 
-  return byCache.([]byte), nil
+  return cachePath, err
 }
 
-func (server *GofuServer) processImage(mw *imagick.MagickWand, blob []byte, query url.Values) {
+func (server *GofuServer) processImage(mw *imagick.MagickWand, filePath string, query url.Values) {
   originWidth := mw.GetImageWidth()
   originHeight := mw.GetImageHeight()
   width := originWidth
@@ -85,7 +94,7 @@ func (server *GofuServer) processImage(mw *imagick.MagickWand, blob []byte, quer
   mw.SetOption("jpeg:size", fmt.Sprintf("%dx%d", width, height))
 
   bench("Read Image", func() {
-    mw.ReadImageBlob(blob)
+    mw.ReadImage(filePath)
   })
 
   if query["c"] != nil {
@@ -108,11 +117,11 @@ func (server *GofuServer) processImage(mw *imagick.MagickWand, blob []byte, quer
 }
 
 func (server *GofuServer) imageHandler(res *GofuResponse, req *http.Request) {
-  var blob []byte
+  var filePath string
   var err error
 
   bench("Load by S3 or Cache", func() {
-    blob, err = server.getImage(req.URL.Path[1:])
+    filePath, err = server.getImage(req.URL.Path[1:])
     if err != nil {
       res.Status = http.StatusNotFound
       res.ClearBody()
@@ -130,7 +139,7 @@ func (server *GofuServer) imageHandler(res *GofuResponse, req *http.Request) {
   }()
 
   bench("ProcessImage", func() {
-    server.processImage(magickWand, blob, req.URL.Query())
+    server.processImage(magickWand, filePath, req.URL.Query())
   })
 
   bench("Write Response", func() {

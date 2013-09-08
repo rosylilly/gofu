@@ -9,6 +9,10 @@ import (
   "runtime"
 )
 
+type DirConfig struct {
+  Cache string
+}
+
 type ImageConfig struct {
   DefaultBlur    float64
   DefaultQuarity uint
@@ -25,6 +29,7 @@ type GofuConfig struct {
   MaxProc   int
   LogPath   string
   LogFormat string
+  Dir       DirConfig
   Image     ImageConfig
   S3Config  aws.Auth
   Verbose   bool
@@ -48,6 +53,9 @@ func (config *GofuConfig) setDefault() {
   config.MaxProc = runtime.NumCPU()
   config.LogPath = ""
   config.LogFormat = "combined"
+  config.Dir = DirConfig{
+    Cache: "./tmp/cache",
+  }
   config.Image = ImageConfig{
     DefaultBlur:    float64(1),
     DefaultQuarity: uint(95),
