@@ -12,14 +12,14 @@ func init() {
 }
 
 func main() {
-  runtime.GOMAXPROCS(runtime.NumCPU())
-
   flag.Parse()
 
   if gofuConfig.Usage {
     flag.Usage()
     os.Exit(0)
   }
+
+  runtime.GOMAXPROCS(gofuConfig.MaxProc)
 
   imagick.Initialize()
   defer func() {

@@ -6,6 +6,7 @@ import (
   "fmt"
   "io/ioutil"
   "launchpad.net/goamz/aws"
+  "runtime"
 )
 
 type GofuConfig struct {
@@ -16,6 +17,7 @@ type GofuConfig struct {
   Bucket string
   Fcgi bool
   MaxCache int
+  MaxProc int
   S3Config aws.Auth
   Verbose bool
 }
@@ -34,6 +36,7 @@ func (config *GofuConfig) setDefault() {
   config.Bind = ""
   config.Port = 8088
   config.MaxCache = 1000
+  config.MaxProc = runtime.NumCPU()
   config.Fcgi = false
 }
 
