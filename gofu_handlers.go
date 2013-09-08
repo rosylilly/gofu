@@ -2,8 +2,8 @@ package main
 
 import (
   "github.com/gographics/imagick/imagick"
-  "net/url"
   "net/http"
+  "net/url"
   "strconv"
 )
 
@@ -47,9 +47,15 @@ func (server *GofuServer) processImage(mw *imagick.MagickWand, query url.Values)
   blur := gofuConfig.Image.DefaultBlur
   quarity := gofuConfig.Image.DefaultQuarity
 
-  if query["w"] != nil { width = atoiWithCalc(query["w"][0], width) }
-  if query["h"] != nil { height = atoiWithCalc(query["h"][0], height) }
-  if query["q"] != nil { quarity = atoiWithCalc(query["q"][0], quarity) }
+  if query["w"] != nil {
+    width = atoiWithCalc(query["w"][0], width)
+  }
+  if query["h"] != nil {
+    height = atoiWithCalc(query["h"][0], height)
+  }
+  if query["q"] != nil {
+    quarity = atoiWithCalc(query["q"][0], quarity)
+  }
 
   if width != originWidth || height != originHeight {
     mw.ResizeImage(width, height, imagick.FILTER_CUBIC, blur)
@@ -67,7 +73,7 @@ func (server *GofuServer) imageHandler(res *GofuResponse, req *http.Request) {
   }
 
   magickWand := <-server.wands
-  defer func(){
+  defer func() {
     magickWand.Clear()
     server.wands <- magickWand
   }()

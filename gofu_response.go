@@ -8,7 +8,7 @@ import (
 type GofuResponse struct {
   writer http.ResponseWriter
   Status int
-  Head bool
+  Head   bool
 
   Body []byte
 }

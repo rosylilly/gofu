@@ -2,8 +2,8 @@ package main
 
 import (
   "fmt"
-  "github.com/golang/groupcache/lru"
   "github.com/gographics/imagick/imagick"
+  "github.com/golang/groupcache/lru"
   "launchpad.net/goamz/aws"
   "launchpad.net/goamz/s3"
   "net"
@@ -15,11 +15,11 @@ import (
 type MagickWandChan chan *imagick.MagickWand
 
 type GofuServer struct {
-  bind string
+  bind   string
   bucket *s3.Bucket
-  lru *lru.Cache
+  lru    *lru.Cache
   logger *GofuLogger
-  wands MagickWandChan
+  wands  MagickWandChan
 }
 
 func NewGofuServer() *GofuServer {
@@ -39,7 +39,7 @@ func NewGofuServer() *GofuServer {
   return server
 }
 
-func (server *GofuServer) handlerSelector(req *http.Request) (func(res *GofuResponse, req *http.Request)) {
+func (server *GofuServer) handlerSelector(req *http.Request) func(res *GofuResponse, req *http.Request) {
   if req.Method == "GET" || req.Method == "HEAD" {
     return server.imageHandler
   }

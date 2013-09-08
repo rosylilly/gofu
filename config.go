@@ -10,24 +10,24 @@ import (
 )
 
 type ImageConfig struct {
-  DefaultBlur float64
+  DefaultBlur    float64
   DefaultQuarity uint
 }
 
 type GofuConfig struct {
-  Path string
-  Usage bool
-  Bind string
-  Port uint
-  Bucket string
-  Fcgi bool
-  MaxCache int
-  MaxProc int
-  LogPath string
+  Path      string
+  Usage     bool
+  Bind      string
+  Port      uint
+  Bucket    string
+  Fcgi      bool
+  MaxCache  int
+  MaxProc   int
+  LogPath   string
   LogFormat string
-  Image ImageConfig
-  S3Config aws.Auth
-  Verbose bool
+  Image     ImageConfig
+  S3Config  aws.Auth
+  Verbose   bool
 }
 
 var gofuConfig GofuConfig
@@ -49,7 +49,7 @@ func (config *GofuConfig) setDefault() {
   config.LogPath = ""
   config.LogFormat = "combined"
   config.Image = ImageConfig{
-    DefaultBlur: float64(1),
+    DefaultBlur:    float64(1),
     DefaultQuarity: uint(95),
   }
 }

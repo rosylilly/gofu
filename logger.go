@@ -1,32 +1,32 @@
 package main
 
 import (
-  "os"
   "io"
   "net/http"
-  "time"
+  "os"
   "text/template"
+  "time"
 )
 
 type GofuLogger struct {
-  io io.Writer
+  io       io.Writer
   template *template.Template
 }
 
 var logFormat = map[string]string{
   "combined": "{{.Host}} {{.Status}} {{.Method}} {{.Path}} {{.Size}} [{{.RequestTime}}] {{.ResponseTime}} \"{{.UserAgent}}\"\n",
-  "ltsv": "host:{{.Host}}\tstatus:{{.Status}}\tmethod:{{.Method}}\tpath:{{.Path}}\tsize:{{.Size}}\trequestTime:{{.RequestTime}}\tresponseTime:{{.ResponseTime}}\tua:{{.UserAgent}}\n",
+  "ltsv":     "host:{{.Host}}\tstatus:{{.Status}}\tmethod:{{.Method}}\tpath:{{.Path}}\tsize:{{.Size}}\trequestTime:{{.RequestTime}}\tresponseTime:{{.ResponseTime}}\tua:{{.UserAgent}}\n",
 }
 
 type LoggingField struct {
-  Host string
-  Status int
-  Size int
-  Method string
-  Path string
+  Host         string
+  Status       int
+  Size         int
+  Method       string
+  Path         string
   ResponseTime int64
-  RequestTime time.Time
-  UserAgent string
+  RequestTime  time.Time
+  UserAgent    string
 }
 
 func NewGofuLogger() *GofuLogger {
@@ -44,7 +44,9 @@ func NewGofuLogger() *GofuLogger {
     io: io,
   }
   logger.template, err = template.New("logger").Parse(logger.format())
-  if err != nil { panic(err) }
+  if err != nil {
+    panic(err)
+  }
 
   return &logger
 }
@@ -64,14 +66,14 @@ func (logger *GofuLogger) log(res *GofuResponse, req *http.Request, t time.Time)
   }
 
   field := LoggingField{
-    Host: req.Host,
-    Status: res.Status,
-    Size: len(res.Body),
-    Method: req.Method,
-    Path: req.URL.Path + "?" + req.URL.RawQuery,
+    Host:         req.Host,
+    Status:       res.Status,
+    Size:         len(res.Body),
+    Method:       req.Method,
+    Path:         req.URL.Path + "?" + req.URL.RawQuery,
     ResponseTime: responseTime,
-    RequestTime: t,
-    UserAgent: userAgent,
+    RequestTime:  t,
+    UserAgent:    userAgent,
   }
   logger.template.Execute(logger.io, field)
 }
