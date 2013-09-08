@@ -9,6 +9,11 @@ import (
   "runtime"
 )
 
+type ImageConfig struct {
+  DefaultBlur float64
+  DefaultQuarity uint
+}
+
 type GofuConfig struct {
   Path string
   Usage bool
@@ -18,6 +23,8 @@ type GofuConfig struct {
   Fcgi bool
   MaxCache int
   MaxProc int
+  LogFormat string
+  Image ImageConfig
   S3Config aws.Auth
   Verbose bool
 }
@@ -35,9 +42,14 @@ func (config *GofuConfig) init() {
 func (config *GofuConfig) setDefault() {
   config.Bind = ""
   config.Port = 8088
+  config.Fcgi = false
   config.MaxCache = 1000
   config.MaxProc = runtime.NumCPU()
-  config.Fcgi = false
+  config.LogFormat = "combined"
+  config.Image = ImageConfig{
+    DefaultBlur: float64(1),
+    DefaultQuarity: uint(95),
+  }
 }
 
 func (config *GofuConfig) load() (err error) {

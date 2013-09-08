@@ -29,5 +29,7 @@ func main() {
     os.Exit(1)
   }
 
-  start()
+  // start()
+  gofuServer := NewGofuServer()
+  gofuServer.run()
 }
