@@ -1,6 +1,7 @@
 package main
 
 import (
+  "fmt"
   "io"
   "net/http"
   "os"
@@ -76,4 +77,8 @@ func (logger *GofuLogger) log(res *GofuResponse, req *http.Request, t time.Time)
     UserAgent:    userAgent,
   }
   logger.template.Execute(logger.io, field)
+}
+
+func (logger *GofuLogger) onPanic(err interface {}) {
+  fmt.Fprintf(logger.io, "Error: ", err, "\n")
 }

@@ -5,9 +5,18 @@ import (
   "net/http"
   "net/url"
   "strconv"
+  "strings"
 )
 
-func atoi(query string, source uint) uint {
+func atoi(query string, source int) int {
+  to, err := strconv.ParseInt(query, 10, 16)
+  if err == nil {
+    source = int(to)
+  }
+  return source
+}
+
+func atoui(query string, source uint) uint {
   to, err := strconv.ParseUint(query, 10, 16)
   if err == nil {
     source = uint(to)
@@ -48,16 +57,26 @@ func (server *GofuServer) processImage(mw *imagick.MagickWand, query url.Values)
   quarity := gofuConfig.Image.DefaultQuarity
 
   if query["w"] != nil {
-    width = atoi(query["w"][0], width)
+    width = atoui(query["w"][0], width)
   }
   if query["h"] != nil {
-    height = atoi(query["h"][0], height)
+    height = atoui(query["h"][0], height)
   }
   if query["q"] != nil {
-    quarity = atoi(query["q"][0], quarity)
+    quarity = atoui(query["q"][0], quarity)
   }
   if query["b"] != nil {
     blur = atof(query["b"][0], blur)
+  }
+  if query["c"] != nil {
+    cropQuery := strings.Split(query["c"][0], ",")
+    if len(cropQuery[0]) > 0 && len(cropQuery[1]) > 0 && len(cropQuery[2]) > 0 && len(cropQuery[3]) > 0 {
+      cropWidth := atoui(cropQuery[0], width)
+      cropHeight := atoui(cropQuery[1], height)
+      cropPointX := atoi(cropQuery[2], 0)
+      cropPointY := atoi(cropQuery[3], 0)
+      mw.CropImage(cropWidth, cropHeight, cropPointX, cropPointY)
+    }
   }
 
   if width != originWidth || height != originHeight {

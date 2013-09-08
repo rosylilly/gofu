@@ -54,6 +54,7 @@ func (server *GofuServer) mainHandler(w http.ResponseWriter, req *http.Request) 
   res := NewGofuResponse(w)
   defer func() {
     if err := recover(); err != nil {
+      server.logger.onPanic(err)
       res.Status = http.StatusInternalServerError
       res.Body = []byte("")
     }
