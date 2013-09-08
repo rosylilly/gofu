@@ -1,6 +1,7 @@
 package main
 
 import (
+  "os"
   "io"
   "net/http"
   "time"
@@ -28,8 +29,17 @@ type LoggingField struct {
   UserAgent string
 }
 
-func NewGofuLogger(io io.Writer) *GofuLogger {
+func NewGofuLogger() *GofuLogger {
   var err error
+
+  io := os.Stdout
+  if len(gofuConfig.LogPath) > 0 {
+    io, err = os.Create(gofuConfig.LogPath)
+    if err != nil {
+      panic(err)
+    }
+  }
+
   logger := GofuLogger{
     io: io,
   }

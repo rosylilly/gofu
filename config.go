@@ -23,6 +23,7 @@ type GofuConfig struct {
   Fcgi bool
   MaxCache int
   MaxProc int
+  LogPath string
   LogFormat string
   Image ImageConfig
   S3Config aws.Auth
@@ -45,6 +46,7 @@ func (config *GofuConfig) setDefault() {
   config.Fcgi = false
   config.MaxCache = 1000
   config.MaxProc = runtime.NumCPU()
+  config.LogPath = ""
   config.LogFormat = "combined"
   config.Image = ImageConfig{
     DefaultBlur: float64(1),

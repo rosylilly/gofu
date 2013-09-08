@@ -10,7 +10,6 @@ import (
   "net/http"
   "net/http/fcgi"
   "time"
-  "os"
 )
 
 type MagickWandChan chan *imagick.MagickWand
@@ -29,7 +28,7 @@ func NewGofuServer() *GofuServer {
   server.bind = fmt.Sprintf("%s:%d", gofuConfig.Bind, gofuConfig.Port)
   server.bucket = s3.New(gofuConfig.S3Config, aws.APNortheast).Bucket(gofuConfig.Bucket)
   server.lru = lru.New(gofuConfig.MaxCache)
-  server.logger = NewGofuLogger(os.Stdout)
+  server.logger = NewGofuLogger()
   server.wands = make(MagickWandChan, gofuConfig.MaxProc)
 
   for i := 0; i < gofuConfig.MaxProc; i++ {
