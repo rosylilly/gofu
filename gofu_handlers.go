@@ -5,27 +5,27 @@ import (
   "github.com/gographics/imagick/imagick"
   "net/http"
   "net/url"
+  "os"
+  "path"
   "strconv"
   "strings"
-  "path"
   "time"
-  "os"
 )
 
 type CropContext struct {
-  width uint
+  width  uint
   height uint
-  x int
-  y int
+  x      int
+  y      int
 }
 
 type RequestContext struct {
-  mtime int64
-  width uint
-  height uint
+  mtime   int64
+  width   uint
+  height  uint
   quarity uint
-  blur float64
-  crop *CropContext
+  blur    float64
+  crop    *CropContext
 }
 
 func (ctx *RequestContext) isResize() bool {
@@ -34,12 +34,12 @@ func (ctx *RequestContext) isResize() bool {
 
 func bench(label string, f func()) {
   t := time.Now().UnixNano()
-  for(len(label) < 30) {
+  for len(label) < 30 {
     label += " "
   }
   f()
   if gofuConfig.Verbose {
-    fmt.Printf("%s: %d\n", label, (time.Now().UnixNano() - t)/1000000)
+    fmt.Printf("%s: %d\n", label, (time.Now().UnixNano()-t)/1000000)
   }
 }
 

@@ -79,6 +79,6 @@ func (logger *GofuLogger) log(res *GofuResponse, req *http.Request, t time.Time)
   logger.template.Execute(logger.io, field)
 }
 
-func (logger *GofuLogger) onPanic(err interface {}) {
+func (logger *GofuLogger) onPanic(err interface{}) {
   fmt.Fprintf(logger.io, "Error: ", err, "\n")
 }
