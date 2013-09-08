@@ -1,25 +1,25 @@
 package main
 
 import (
-  "github.com/gographics/imagick/imagick"
-  "launchpad.net/goamz/aws"
   "encoding/json"
-  "io/ioutil"
   "flag"
   "fmt"
+  "github.com/gographics/imagick/imagick"
+  "io/ioutil"
+  "launchpad.net/goamz/aws"
   "os"
   "runtime"
 )
 
 type Config struct {
-  Path string
-  Help bool
-  Bind string
-  Port uint
-  Bucket string
-  Fcgi bool
+  Path     string
+  Help     bool
+  Bind     string
+  Port     uint
+  Bucket   string
+  Fcgi     bool
   MaxCache int
-  S3 aws.Auth
+  S3       aws.Auth
 }
 
 var gofu_config Config
@@ -33,7 +33,7 @@ func init() {
   flag.StringVar(&gofu_config.Path, "c", "./config.json", "config file path")
   flag.BoolVar(&gofu_config.Help, "h", false, "show help")
 
-  flag.Usage = func () {
+  flag.Usage = func() {
     fmt.Fprintf(os.Stderr, "Usage of gofu:\n")
     flag.PrintDefaults()
   }
@@ -44,7 +44,7 @@ func main() {
 
   flag.Parse()
 
-  if(gofu_config.Help) {
+  if gofu_config.Help {
     flag.Usage()
     os.Exit(0)
   }
@@ -55,7 +55,7 @@ func main() {
   }()
 
   file, e := ioutil.ReadFile(gofu_config.Path)
-  if(e != nil) {
+  if e != nil {
     fmt.Printf("Config file error: %v\n", e)
     os.Exit(1)
   }
