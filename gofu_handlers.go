@@ -7,7 +7,7 @@ import (
   "strconv"
 )
 
-func atoiWithCalc(query string, source uint) uint {
+func atoi(query string, source uint) uint {
   to, err := strconv.ParseUint(query, 10, 16)
   if err == nil {
     source = uint(to)
@@ -48,13 +48,16 @@ func (server *GofuServer) processImage(mw *imagick.MagickWand, query url.Values)
   quarity := gofuConfig.Image.DefaultQuarity
 
   if query["w"] != nil {
-    width = atoiWithCalc(query["w"][0], width)
+    width = atoi(query["w"][0], width)
   }
   if query["h"] != nil {
-    height = atoiWithCalc(query["h"][0], height)
+    height = atoi(query["h"][0], height)
   }
   if query["q"] != nil {
-    quarity = atoiWithCalc(query["q"][0], quarity)
+    quarity = atoi(query["q"][0], quarity)
+  }
+  if query["b"] != nil {
+    blur = atof(query["b"][0], blur)
   }
 
   if width != originWidth || height != originHeight {
@@ -62,6 +65,7 @@ func (server *GofuServer) processImage(mw *imagick.MagickWand, query url.Values)
   }
 
   mw.SetImageCompressionQuality(quarity)
+  mw.StripImage()
 }
 
 func (server *GofuServer) imageHandler(res *GofuResponse, req *http.Request) {
