@@ -1,12 +1,25 @@
 package main
 
 import (
+  "fmt"
   "github.com/gographics/imagick/imagick"
   "net/http"
   "net/url"
   "strconv"
   "strings"
+  "time"
 )
+
+func bench(label string, f func()) {
+  t := time.Now().UnixNano()
+  for(len(label) < 30) {
+    label += " "
+  }
+  f()
+  if gofuConfig.Verbose {
+    fmt.Printf("%s: %d\n", label, (time.Now().UnixNano() - t)/1000000)
+  }
+}
 
 func atoi(query string, source int) int {
   to, err := strconv.ParseInt(query, 10, 16)
@@ -48,7 +61,7 @@ func (server *GofuServer) getImage(path string) (b []byte, e error) {
   return byCache.([]byte), nil
 }
 
-func (server *GofuServer) processImage(mw *imagick.MagickWand, query url.Values) {
+func (server *GofuServer) processImage(mw *imagick.MagickWand, blob []byte, query url.Values) {
   originWidth := mw.GetImageWidth()
   originHeight := mw.GetImageHeight()
   width := originWidth
@@ -68,6 +81,13 @@ func (server *GofuServer) processImage(mw *imagick.MagickWand, query url.Values)
   if query["b"] != nil {
     blur = atof(query["b"][0], blur)
   }
+
+  mw.SetOption("jpeg:size", fmt.Sprintf("%dx%d", width, height))
+
+  bench("Read Image", func() {
+    mw.ReadImageBlob(blob)
+  })
+
   if query["c"] != nil {
     cropQuery := strings.Split(query["c"][0], ",")
     if len(cropQuery[0]) > 0 && len(cropQuery[1]) > 0 && len(cropQuery[2]) > 0 && len(cropQuery[3]) > 0 {
@@ -88,21 +108,32 @@ func (server *GofuServer) processImage(mw *imagick.MagickWand, query url.Values)
 }
 
 func (server *GofuServer) imageHandler(res *GofuResponse, req *http.Request) {
-  blob, err := server.getImage(req.URL.Path[1:])
-  if err != nil {
-    res.Status = http.StatusNotFound
-    res.ClearBody()
-    return
-  }
+  var blob []byte
+  var err error
 
-  magickWand := <-server.wands
+  bench("Load by S3 or Cache", func() {
+    blob, err = server.getImage(req.URL.Path[1:])
+    if err != nil {
+      res.Status = http.StatusNotFound
+      res.ClearBody()
+      return
+    }
+  })
+
+  var magickWand *imagick.MagickWand
+  bench("Create MagickWand", func() {
+    magickWand = <-server.wands
+  })
   defer func() {
     magickWand.Clear()
     server.wands <- magickWand
   }()
-  magickWand.ReadImageBlob(blob)
 
-  server.processImage(magickWand, req.URL.Query())
+  bench("ProcessImage", func() {
+    server.processImage(magickWand, blob, req.URL.Query())
+  })
 
-  res.Body = magickWand.GetImageBlob()
+  bench("Write Response", func() {
+    res.Body = magickWand.GetImageBlob()
+  })
 }
