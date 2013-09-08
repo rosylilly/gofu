@@ -22,9 +22,7 @@ func main() {
   runtime.GOMAXPROCS(gofuConfig.MaxProc)
 
   imagick.Initialize()
-  defer func() {
-    imagick.Terminate()
-  }()
+  defer imagick.Terminate()
 
   e := gofuConfig.load()
   if e != nil {
