@@ -80,14 +80,14 @@ func gofuHandler(writer http.ResponseWriter, req *http.Request) {
 }
 
 func startWithHttp() {
-  address := fmt.Sprintf("%s:%d", gofu_config.Bind, gofu_config.Port)
+  address := fmt.Sprintf("%s:%d", gofuConfig.Bind, gofuConfig.Port)
 
   http.HandleFunc("/", gofuHandler)
   http.ListenAndServe(address, nil)
 }
 
 func startWithFcgi() {
-  address := fmt.Sprintf("%s:%d", gofu_config.Bind, gofu_config.Port)
+  address := fmt.Sprintf("%s:%d", gofuConfig.Bind, gofuConfig.Port)
 
   mux := http.NewServeMux()
   mux.HandleFunc("/", gofuHandler)
@@ -96,11 +96,11 @@ func startWithFcgi() {
 }
 
 func start() {
-  cache = lru.New(gofu_config.MaxCache)
-  s3client := s3.New(gofu_config.S3, aws.APNortheast)
-  bucket = s3client.Bucket(gofu_config.Bucket)
+  cache = lru.New(gofuConfig.MaxCache)
+  s3client := s3.New(gofuConfig.S3Config, aws.APNortheast)
+  bucket = s3client.Bucket(gofuConfig.Bucket)
 
-  if gofu_config.Fcgi {
+  if gofuConfig.Fcgi {
     startWithFcgi()
   } else {
     startWithHttp()

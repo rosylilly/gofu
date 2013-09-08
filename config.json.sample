@@ -2,7 +2,7 @@
   "Bind": "localhost",
   "Port": 8080,
   "bucket": "********",
-  "s3": {
+  "s3Config": {
     "accesskey": "********",
     "secretkey": "********"
   }
