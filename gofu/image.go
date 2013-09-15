@@ -1,7 +1,6 @@
 package gofu
 
 import (
-  "fmt"
   "github.com/gographics/imagick/imagick"
   "launchpad.net/goamz/aws"
   "launchpad.net/goamz/s3"
@@ -46,7 +45,7 @@ func getByS3(path string) ([]byte, error) {
 func (i *Image) Process(wand *imagick.MagickWand, q *Query) {
   defer wand.Clear()
 
-  wand.SetOption("jpeg:size", fmt.Sprintf("%dx%d", q.ResizedWidth, q.ResizedHeight))
+  // wand.SetOption("jpeg:size", fmt.Sprintf("%dx%d", q.ResizedWidth, q.ResizedHeight))
 
   wand.ReadImage(i.Path)
   wand.SetImageFormat("jpeg")
