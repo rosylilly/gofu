@@ -1,38 +1,37 @@
 package gofu
 
 import (
-  "fmt"
-  "io/ioutil"
+  "github.com/gographics/imagick/imagick"
   "net/http"
-  "strconv"
+  "runtime"
 )
+
+type RequestContexts chan *RequestContext
+
+var requestContexts RequestContexts
 
 var ImageHandler = &Handler{
   Path: "/i/",
 }
 
 func init() {
+  imagick.Initialize()
+
   ImageHandler.Func = imageHandler
+
+  num := runtime.NumCPU() * 4
+  requestContexts = make(RequestContexts, num)
+  for i := 0; i < num; i++ {
+    requestContexts <- &RequestContext{
+      Wand: imagick.NewMagickWand(),
+    }
+  }
 }
 
 func imageHandler(w http.ResponseWriter, r *http.Request) {
-  p := r.URL.Path[3:]
-  fmt.Println(p)
+  ctx := <-requestContexts
 
-  image, err := GetImage(p)
-  if err != nil {
-    fmt.Println(err)
-    return
-  }
+  ctx.Execute(w, r)
 
-  image.Blob, err = ioutil.ReadFile(image.Path)
-  if err != nil {
-    fmt.Println(err)
-    return
-  }
-
-  w.WriteHeader(http.StatusOK)
-  w.Header().Add("Content-Type", http.DetectContentType(image.Blob))
-  w.Header().Add("Content-Length", strconv.Itoa(len(image.Blob)))
-  w.Write(image.Blob)
+  requestContexts <- ctx
 }

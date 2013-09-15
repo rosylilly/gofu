@@ -13,8 +13,8 @@ type TimeoutConfig struct {
 
 func NewTimeoutConfig() TimeoutConfig {
   return TimeoutConfig{
-    Read:  "5s",
-    Write: "5s",
+    Read:  "5m",
+    Write: "5m",
   }
 }
 
