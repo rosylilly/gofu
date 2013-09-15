@@ -5,7 +5,6 @@ import (
   "os"
   "os/signal"
   "syscall"
-  "time"
 )
 
 const (

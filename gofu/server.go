@@ -39,4 +39,6 @@ func (s *Server) AddHandler(handler *Handler) {
 
 func (s *Server) init() {
   s.AddHandler(HealthHandler)
+  s.AddHandler(StatHandler)
+  s.AddHandler(ImageHandler)
 }

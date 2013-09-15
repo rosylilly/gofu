@@ -9,7 +9,15 @@ const (
 type CacheConfig struct {
   Dir            string `json:"dir"`
   Expire         string `json:"expire"`
-  MaxStorageSize int64  `json:"max_storage_size"`
+  MaxStorageSize int    `json:"max_storage_size"`
+}
+
+func NewCacheConfig() CacheConfig {
+  return CacheConfig{
+    Dir:            "tmp/cache",
+    Expire:         "3m",
+    MaxStorageSize: 100 * 1024 * 1024,
+  }
 }
 
 func (c *CacheConfig) ExpireTime() time.Duration {

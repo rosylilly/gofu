@@ -10,6 +10,13 @@ type S3Config struct {
   SecretKey  string `json:"secret_key"`
 }
 
+func NewS3Config() S3Config {
+  return S3Config{
+    BucketName: "",
+    Region:     "ap-northeast-1",
+  }
+}
+
 func (c *S3Config) AwsRegion() aws.Region {
   region, exist := aws.Regions[c.Region]
   if !exist {

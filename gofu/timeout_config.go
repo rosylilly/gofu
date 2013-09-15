@@ -11,6 +11,13 @@ type TimeoutConfig struct {
   Write string `json:"write"`
 }
 
+func NewTimeoutConfig() TimeoutConfig {
+  return TimeoutConfig{
+    Read:  "5s",
+    Write: "5s",
+  }
+}
+
 func (c *TimeoutConfig) ReadTime() time.Duration {
   t, err := time.ParseDuration(c.Read)
   if err != nil {

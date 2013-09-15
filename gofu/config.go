@@ -17,7 +17,16 @@ type Config struct {
 }
 
 func NewConfig() *Config {
-  return &Config{}
+  return &Config{
+    Listen:   ":8000",
+    FcgiMode: false,
+    PidFile:  "",
+    Timeout:  NewTimeoutConfig(),
+    Cache:    NewCacheConfig(),
+    S3:       NewS3Config(),
+
+    path: "config.json",
+  }
 }
 
 func (c *Config) Load(path string) error {
