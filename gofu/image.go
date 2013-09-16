@@ -70,6 +70,6 @@ func (i *Image) resize(wand *imagick.MagickWand, w, h uint) {
     w = ow * h / oh
   }
 
-  wand.SetImageInterpolateMethod(imagick.INTERPOLATE_PIXEL_BILINEAR)
+  wand.SetImageInterpolateMethod(imagick.INTERPOLATE_PIXEL_BICUBIC)
   wand.ResizeImage(w, h, imagick.FILTER_LANCZOS2_SHARP, 1)
 }
