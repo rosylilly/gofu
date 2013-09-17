@@ -47,14 +47,18 @@ func (i *Image) Process(wand *imagick.MagickWand, q *Query) {
 
   // wand.SetOption("jpeg:size", fmt.Sprintf("%dx%d", q.ResizedWidth, q.ResizedHeight))
 
-  wand.ReadImage(i.Path)
-  wand.SetImageFormat("jpeg")
-  wand.SetCompression(imagick.COMPRESSION_JPEG2000)
-  wand.SetImageCompressionQuality(95)
+  bench("wand read", func() { wand.ReadImage(i.Path) })
+  bench("wand set image format", func() { wand.SetImageFormat("jpeg") })
+  bench("wand set compress", func() { wand.SetCompression(imagick.COMPRESSION_JPEG2000) })
+  bench("wand set image quality", func() { wand.SetImageCompressionQuality(95) })
 
-  i.resize(wand, q.ResizedWidth, q.ResizedHeight)
+  bench("wand resize", func() {
+    i.resize(wand, q.ResizedWidth, q.ResizedHeight)
+  })
 
-  wand.StripImage()
+  bench("wand strip", func() {
+    wand.StripImage()
+  })
 
   i.Blob = wand.GetImageBlob()
   i.Processed = true

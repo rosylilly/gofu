@@ -23,11 +23,11 @@ func (r *RequestContext) Execute(w http.ResponseWriter, req *http.Request) {
     r.writeResponse(w)
   }()
 
-  r.init(req)
-  r.getImage()
-  r.parseQuery()
+  bench("init", func() { r.init(req) })
+  bench("get img", func() { r.getImage() })
+  bench("parse query", func() { r.parseQuery() })
 
-  r.processImage()
+  bench("process image", func() { r.processImage() })
 }
 
 func (r *RequestContext) init(req *http.Request) {
