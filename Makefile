@@ -1,5 +1,7 @@
 .PHONEY: build clean
 
+export CC = llvm-gcc
+
 all: build
 
 clean:

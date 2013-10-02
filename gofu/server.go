@@ -1,6 +1,8 @@
 package gofu
 
 import (
+  _ "net/http/pprof"
+  "log"
   "net/http"
 )
 
@@ -30,6 +32,10 @@ func NewServer(config *Config) *Server {
 }
 
 func (s *Server) Start() error {
+  go func() {
+    log.Println(http.ListenAndServe("localhost:6060", nil))
+  }()
+
   return s.http.ListenAndServe()
 }
 
